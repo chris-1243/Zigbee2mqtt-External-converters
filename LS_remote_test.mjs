@@ -52,32 +52,6 @@ const lsModernExtend = {
     },
 
     commandsOnOff(args = {}) {
-    const {commands = ["on", "off", "on_double", "off_double"], bind = true, endpointNames = undefined} = args;
-    let actions = commands;
-    if (endpointNames) {
-        actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
-    }
-    const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
-
-    const actionPayloadLookup = {
-        commandOn: "on",
-        commandOff: "off",
-        commandOnWithRecallGlobalScene: "on_double",
-        commandOffWithEffect: "off_double",
-    };
-
-    const fromZigbee = [fz.command_on, fz.command_off, fzLocal.command_on_double, fzLocal.command_off_double];
-
-    const result = {exposes, fromZigbee, isModernExtend: true};
-
-    if (bind) result.configure = [setupConfigureForBinding("genOnOff", "output", endpointNames)];
-
-    return result;
-
-    },
-
-    commandsColorCtrl(args = {}) {
-    commandsOnOff(args = {}) {
         const {commands = ["on", "off", "on_double", "off_double"], bind = true, endpointNames = undefined} = args;
         let actions = commands;
         if (endpointNames) {
