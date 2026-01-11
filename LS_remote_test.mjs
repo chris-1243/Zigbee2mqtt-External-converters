@@ -77,22 +77,48 @@ const lsModernExtend = {
     },
 
     commandsColorCtrl(args = {}) {
-    const {commands = ["color_temperature_step_stop"], bind = true, endpointNames = undefined} = args;
-    let actions = commands;
-    if (endpointNames) {
-        actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
-    }
-    const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
+    commandsOnOff(args = {}) {
+        const {commands = ["on", "off", "on_double", "off_double"], bind = true, endpointNames = undefined} = args;
+        let actions = commands;
+        if (endpointNames) {
+            actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
+        }
+        const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
 
-    const actionPayloadLookup = {commandStopMoveStep: "color_temperature_step_stop"};
+        const actionPayloadLookup = {
+            commandOn: "on",
+            commandOff: "off",
+            commandOnWithRecallGlobalScene: "on_double",
+            commandOffWithEffect: "off_double",
+        };
 
-    const fromZigbee = [fzLocal.command_step_color_temperature_stop];
+        const fromZigbee = [fz.command_on, fz.command_off, fzLocal.command_on_double, fzLocal.command_off_double];
 
-    const result = {exposes, fromZigbee, isModernExtend: true};
+        const result = {exposes, fromZigbee, isModernExtend: true};
 
-    if (bind) result.configure = [setupConfigureForBinding("lightingColorCtrl", "output", endpointNames)];
+        if (bind) result.configure = [setupConfigureForBinding("genOnOff", "output", endpointNames)];
 
-    return result;
+        return result;
+
+    },
+
+    commandsColorCtrl(args = {}) {
+        const {commands = ["color_temperature_step_stop"], bind = true, endpointNames = undefined} = args;
+        let actions = commands;
+        if (endpointNames) {
+            actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
+        }
+        const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
+
+        const actionPayloadLookup = {commandStopMoveStep: "color_temperature_step_stop"};
+
+        const fromZigbee = [fzLocal.command_step_color_temperature_stop];
+
+        const result = {exposes, fromZigbee, isModernExtend: true};
+
+        if (bind) result.configure = [setupConfigureForBinding("lightingColorCtrl", "output", endpointNames)];
+
+        return result;
 
     },
 };
