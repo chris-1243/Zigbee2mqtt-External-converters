@@ -19,6 +19,7 @@ const fzLocal = {
             return payload;
         },
     },
+
     command_off_double: {
         cluster: "genOnOff",
         type: "commandOffWithEffect",
@@ -29,12 +30,12 @@ const fzLocal = {
             return payload;
         },
     },
-    command_move_color_temperature_stop: {
+    command_stop_move_step: {
         cluster: "lightingColorCtrl",
         type: "commandStopMoveStep",
         convert: function(model, msg, publish, options, meta) {
             if (hasAlreadyProcessedMessage(msg, model)) return;
-            const payload = {action: postfixWithEndpointName("color_temperature_move_stop", msg, model, meta)};
+            const payload = {action: postfixWithEndpointName("stop_move_step", msg, model, meta)};
             addActionGroup(payload, msg, model);
             return payload;
         },
@@ -42,60 +43,39 @@ const fzLocal = {
 };
 
 const lsModernExtend = {
-    groupIdExpose() {
+    groupIdExpose: function() {
         const result = {
-            exposes: [
-                e.enum("action_group", ea.STATE)
-                    .withDescription("Group where the action was triggered on")
-                    .withCategory("diagnostic"),
-            ],
+            exposes: [e.numeric("action_group", ea.STATE).withDescription("Group where the action was triggered on")],
             isModernExtend: true,
         };
 
         return result;
     },
 
-    commandsOnOffDouble() {
-        const {commands = ["on_double", "off_double"], bind = true, endpointNames = undefined} = this;
-        let actions = commands;
-        if (endpointNames) {
-            actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
-        }
-        const exposes = [
-            e.enum("action", ea.STATE, actions)
-                .withDescription("Triggered action (e.g. a button click)")
-                .withCategory("diagnostic"),
-        ];
-    
-        const fromZigbee = [fzLocal.command_on_double, fzLocal.command_off_double];
-    
-        const result = {exposes, fromZigbee, isModernExtend: true};
-    
-        if (bind) result.configure = [setupConfigureForBinding("genOnOff", "output", endpointNames)];
-    
-        return result;
+    commandsOnOffDouble: function() {
+        return {
+            exposes: [
+                e.enum("action", ea.STATE, ["on_double", "off_double"])
+                    .withDescription("Triggered action (e.g. a button click)")
+                    .withCategory("diagnostic"),
+            ],
+            fromZigbee: [fzLocal.command_on_double, fzLocal.command_off_double],
+            isModernExtend: true,
+            configure: [setupConfigureForBinding("genOnOff", "output")],
+        };
     },
 
-    commandsColorCtrl() {
-        const {commands = ["color_temperature_move_stop"], bind = true, endpointNames = undefined} = this;
-        let actions = commands;
-        if (endpointNames) {
-            actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
-        }
-        const exposes = [
-            e.enum("action", ea.STATE, actions)
-                .withDescription("Triggered action (e.g. a button click)")
-                .withCategory("diagnostic"),
-        ];
-
-        const fromZigbee = [fzLocal.command_move_color_temperature_stop];
-
-        const result = {exposes, fromZigbee, isModernExtend: true};
-
-        if (bind) result.configure = [setupConfigureForBinding("lightingColorCtrl", "output", endpointNames)];
-
-        return result;
-
+    commandsColorCtrl: function() {
+        return {
+            exposes: [
+                e.enum("action", ea.STATE, ["stop_move_step"])
+                    .withDescription("Triggered action (e.g. a button click)")
+                    .withCategory("diagnostic"),
+            ],
+            fromZigbee: [fzLocal.command_stop_move_step],
+            isModernExtend: true,
+            configure: [setupConfigureForBinding("lightingColorCtrl", "output")],
+        };
     },
 };
 
@@ -114,8 +94,6 @@ export default {
             commands: [
                 "brightness_step_up",
                 "brightness_step_down",
-                "brightness_move_up",
-                "brightness_move_down",
                 "brightness_stop",
             ],
         }),
@@ -123,8 +101,6 @@ export default {
             commands: [
                 "color_temperature_step_up",
                 "color_temperature_step_down",
-                "color_temperature_move_up",
-                "color_temperature_move_down",
             ],
         }),
     ],
