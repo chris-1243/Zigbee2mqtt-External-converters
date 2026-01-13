@@ -1,4 +1,4 @@
-//Version: 0.1.1 (2026.01.12)
+//Version: 0.1.2 (2026.01.13)
 import * as m from "zigbee-herdsman-converters/lib/modernExtend";
 import {setupConfigureForBinding} from "zigbee-herdsman-converters/lib/modernExtend";
 import {presets as e, access as ea} from "zigbee-herdsman-converters/lib/exposes";
@@ -51,18 +51,13 @@ const lsModernExtend = {
 
     },
 
-    commandsOnOff(args = {}) {
+    commandsOnOffDouble(args = {}) {
         const {commands = ["on_double", "off_double"], bind = true, endpointNames = undefined} = args;
         let actions = commands;
         if (endpointNames) {
             actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
         }
         const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
-
-        const actionPayloadLookup = {
-            commandOnWithRecallGlobalScene: "on_double",
-            commandOffWithEffect: "off_double",
-        };
 
         const fromZigbee = [fzLocal.command_on_double, fzLocal.command_off_double];
 
@@ -81,8 +76,6 @@ const lsModernExtend = {
             actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
         }
         const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
-
-        const actionPayloadLookup = {commandStopMoveStep: "color_temperature_move_stop"};
 
         const fromZigbee = [fzLocal.command_move_color_temperature_stop];
 
@@ -103,7 +96,7 @@ export default {
     extend: [
         m.battery(),
         lsModernExtend.groupIdExpose(),
-        lsModernExtend.commandsOnOff(),
+        lsModernExtend.commandsOnOffDouble(),
         lsModernExtend.commandsColorCtrl(),
         m.commandsOnOff({commands: ["on", "off"]}),
         m.commandsLevelCtrl({
