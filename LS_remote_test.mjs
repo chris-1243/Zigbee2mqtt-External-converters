@@ -42,40 +42,51 @@ const fzLocal = {
 };
 
 const lsModernExtend = {
-    groupIdExpose: (args) => {
-        const exposes = [e.numeric("action_group", ea.STATE).withDescription("Group where the action was triggered on")];
-
-        const result = {exposes, isModernExtend: true};
+    groupIdExpose() {
+        const result = {
+            exposes: [
+                e.enum("action_group", ea.STATE)
+                    .withDescription("Group where the action was triggered on")
+                    .withCategory("diagnostic"),
+            ],
+            isModernExtend: true,
+        };
 
         return result;
-
     },
 
-    commandsOnOffDouble(args = {}) {
-        const {commands = ["on_double", "off_double"], bind = true, endpointNames = undefined} = args;
+    commandsOnOffDouble() {
+        const {commands = ["on_double", "off_double"], bind = true, endpointNames = undefined} = this;
         let actions = commands;
         if (endpointNames) {
             actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
         }
-        const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
-
+        const exposes = [
+            e.enum("action", ea.STATE, actions)
+                .withDescription("Triggered action (e.g. a button click)")
+                .withCategory("diagnostic"),
+        ];
+    
         const fromZigbee = [fzLocal.command_on_double, fzLocal.command_off_double];
-
+    
         const result = {exposes, fromZigbee, isModernExtend: true};
-
+    
         if (bind) result.configure = [setupConfigureForBinding("genOnOff", "output", endpointNames)];
-
+    
         return result;
-
     },
 
-    commandsColorCtrl(args = {}) {
-        const {commands = ["color_temperature_move_stop"], bind = true, endpointNames = undefined} = args;
+    commandsColorCtrl() {
+        const {commands = ["color_temperature_move_stop"], bind = true, endpointNames = undefined} = this;
         let actions = commands;
         if (endpointNames) {
             actions = commands.flatMap((c) => endpointNames.map((e) => `${c}_${e}`));
         }
-        const exposes = [e.enum("action", ea.STATE, actions).withDescription("Triggered action (e.g. a button click)")];
+        const exposes = [
+            e.enum("action", ea.STATE, actions)
+                .withDescription("Triggered action (e.g. a button click)")
+                .withCategory("diagnostic"),
+        ];
 
         const fromZigbee = [fzLocal.command_move_color_temperature_stop];
 
